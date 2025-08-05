@@ -84,7 +84,7 @@ function Home() {
       <h1 className="text-2xl font-bold mb-4">MyTunes</h1>
       <p className="text-gray-700">Trending Today</p>
       <div className="mt-6">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {tracks.slice(0, 8).map((track) => (
             <div
               key={track.id}
@@ -184,11 +184,7 @@ function Search() {
           onKeyPress={handleKeyPress}
           className="flex-1"
         />
-        <button
-          onClick={handleSearch}
-          disabled={!inputValue.trim() || loading}
-         
-        >
+        <button onClick={handleSearch} disabled={!inputValue.trim() || loading}>
           {loading ? <LoaderCircle /> : <SearchIcon />}
         </button>
       </div>
@@ -258,7 +254,7 @@ function Layout() {
       <SidebarProvider>
         <div className="flex flex-1">
           <AppSidebar />
-          <main className="flex-1 pb-20 overflow-y-auto">
+          <main className="flex-1 pb-24 md:pb-20 overflow-y-auto">
             <SidebarTrigger />
             <div className="p-6">
               <Outlet />
