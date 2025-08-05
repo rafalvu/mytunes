@@ -2,7 +2,7 @@ import React from 'react'
 
 const playlists = () => {
   return (
-    <div>playlists</div>
+       <h1 className="text-2xl font-bold mb-4">Coming soon...</h1>
   )
 }
 

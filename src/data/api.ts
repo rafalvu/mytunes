@@ -3,13 +3,14 @@ const CLIENT_ID = "9a56e0a6";
 
 export const jamendoAPI = {
   // Search for tracks
-  searchTracks: async (query: string, limit: number = 10) => {
+  searchTracks: async (query: string, limit: number = 50) => {
     try {
       const params = new URLSearchParams({
         client_id: CLIENT_ID,
         format: "json",
         limit: limit.toString(),
         audioformat: "mp32",
+
         search: query,
       });
 
@@ -24,6 +25,23 @@ export const jamendoAPI = {
 
       const data = await response.json();
       console.log("API Response:", data);
+
+      // Optional: Add client-side filtering for more precise results
+      if (data.results) {
+        data.results = data.results.filter((track: any) => {
+          const searchTerm = query.toLowerCase();
+          const trackName = (track.name || "").toLowerCase();
+          const artistName = (track.artist_name || "").toLowerCase();
+          const albumName = (track.album_name || "").toLowerCase();
+
+          return (
+            trackName.includes(searchTerm) ||
+            artistName.includes(searchTerm) ||
+            albumName.includes(searchTerm)
+          );
+        });
+      }
+
       return data;
     } catch (error) {
       console.error("Error fetching music:", error);
@@ -58,4 +76,3 @@ export const jamendoAPI = {
     }
   },
 };
-
