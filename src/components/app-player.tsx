@@ -21,6 +21,10 @@ const AppPlayer = () => {
     seekTo,
     toggleLike,
     isTrackLiked,
+    playNext,
+    playPrevious,
+    hasNext,
+    hasPrevious,
   } = useMusic();
 
   const formatTime = (time: number) => {
@@ -56,7 +60,8 @@ const AppPlayer = () => {
     {
       id: "back",
       icon: SkipBack,
-      onClick: () => console.log("Previous track"),
+      onClick: playPrevious,
+      disabled: !hasPrevious,
     },
     {
       id: "playPause",
@@ -66,7 +71,8 @@ const AppPlayer = () => {
     {
       id: "forward",
       icon: SkipForward,
-      onClick: () => console.log("Next track"),
+      onClick: playNext,
+      disabled: !hasNext,
     },
   ];
 
@@ -197,8 +203,12 @@ const AppPlayer = () => {
             <button
               key={control.id}
               onClick={control.onClick}
-              className="p-2 rounded hover:bg-gray-800 transition-colors"
-              disabled={!currentTrack && control.id === "playPause"}
+              className={`p-2 rounded transition-colors ${
+                control.disabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-800"
+              }`}
+              disabled={control.disabled}
             >
               <control.icon className="w-5 h-5" />
             </button>

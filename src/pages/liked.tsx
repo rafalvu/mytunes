@@ -10,7 +10,7 @@ const Liked = () => {
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
     } else {
-      playTrack(track);
+      playTrack(track, likedTracks);
     }
   };
 
@@ -21,22 +21,25 @@ const Liked = () => {
         <ul className="space-y-4">
           {likedTracks.map((track) => (
             <li key={track.id} className="flex items-center space-x-4">
-              <div className="relative">
+              <div className="relative group">
                 <img
                   src={track.image || "/assets/default-cover.jpg"}
                   alt={track.name}
-                  className="w-16 h-16 rounded"
+                  className="w-16 h-16 rounded object-cover"
                 />
-                <button
-                  className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow"
-                  onClick={() => handlePlayTrack(track)}
-                >
-                  {currentTrack?.id === track.id && isPlaying ? (
-                    <Pause className="w-4 h-4" />
-                  ) : (
-                    <Play className="w-4 h-4" />
-                  )}
-                </button>
+                {/* Play button overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded">
+                  <button
+                    onClick={() => handlePlayTrack(track)}
+                    className="bg-white rounded-full p-2 hover:scale-110 transition-transform shadow-lg"
+                  >
+                    {currentTrack?.id === track.id && isPlaying ? (
+                      <Pause className="w-4 h-4 text-black" />
+                    ) : (
+                      <Play className="w-4 h-4 text-black" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>

@@ -53,11 +53,12 @@ function Home() {
     fetchTracks();
   }, []);
 
-  const handlePlayTrack = (track: Track) => {
+ const handlePlayTrack = (track: Track) => {
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
     } else {
-      playTrack(track);
+      
+      playTrack(track, tracks);
     }
   };
 
@@ -88,7 +89,7 @@ function Home() {
           {tracks.slice(0, 8).map((track) => (
             <div
               key={track.id}
-              className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow group"
+              className="bg-white dark:bg-gray-900 border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow group"
             >
               <div className="aspect-square bg-gray-200 rounded-lg mb-3 overflow-hidden relative">
                 {track.image ? (
@@ -168,7 +169,8 @@ function Search() {
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
     } else {
-      playTrack(track);
+      // Pass search results as playlist
+      playTrack(track, searchResults);
     }
   };
 

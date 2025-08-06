@@ -22,13 +22,19 @@ interface MusicContextType {
   duration: number;
   volume: number;
   likedTracks: Track[];
-  playTrack: (track: Track) => void;
+  currentPlaylist: Track[];
+  currentTrackIndex: number;
+  playTrack: (track: Track, playlist?: Track[]) => void;
   pauseTrack: () => void;
   togglePlayPause: () => void;
   setVolume: (volume: number) => void;
   seekTo: (time: number) => void;
   toggleLike: (track: Track) => void;
   isTrackLiked: (trackId: string) => boolean;
+  playNext: () => void;
+  playPrevious: () => void;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -42,9 +48,15 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(50);
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
+  const [currentPlaylist, setCurrentPlaylist] = useState<Track[]>([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playTrack = (track: Track) => {
+  // Calculate if next/previous tracks are available
+  const hasNext = currentTrackIndex < currentPlaylist.length - 1;
+  const hasPrevious = currentTrackIndex > 0;
+
+  const playTrack = (track: Track, playlist?: Track[]) => {
     // Stop current track if playing
     if (audioRef.current) {
       audioRef.current.pause();
@@ -53,6 +65,23 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
       currentAudio.removeEventListener("loadedmetadata", updateDuration);
       currentAudio.removeEventListener("timeupdate", updateTime);
       currentAudio.removeEventListener("ended", handleTrackEnd);
+    }
+
+    // Update playlist if provided
+    if (playlist) {
+      setCurrentPlaylist(playlist);
+      const trackIndex = playlist.findIndex((t) => t.id === track.id);
+      setCurrentTrackIndex(trackIndex);
+    } else {
+      // If no playlist provided, find track in current playlist
+      const trackIndex = currentPlaylist.findIndex((t) => t.id === track.id);
+      if (trackIndex !== -1) {
+        setCurrentTrackIndex(trackIndex);
+      } else {
+        // If track not in current playlist, create new playlist with just this track
+        setCurrentPlaylist([track]);
+        setCurrentTrackIndex(0);
+      }
     }
 
     // Create new audio element
@@ -73,6 +102,31 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsPlaying(true);
   };
 
+  const playNext = () => {
+    if (hasNext && currentPlaylist.length > 0) {
+      const nextTrack = currentPlaylist[currentTrackIndex + 1];
+      playTrack(nextTrack);
+    }
+  };
+
+  const playPrevious = () => {
+    if (hasPrevious && currentPlaylist.length > 0) {
+      const previousTrack = currentPlaylist[currentTrackIndex - 1];
+      playTrack(previousTrack);
+    }
+  };
+
+  // Update handleTrackEnd to auto-play next track
+  const handleTrackEnd = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+
+    // Auto-play next track if available
+    if (hasNext) {
+      setTimeout(() => playNext(), 500); // Small delay for better UX
+    }
+  };
+
   const updateDuration = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
@@ -83,11 +137,6 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
     }
-  };
-
-  const handleTrackEnd = () => {
-    setIsPlaying(false);
-    setCurrentTime(0);
   };
 
   const pauseTrack = () => {
@@ -158,6 +207,8 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
         duration,
         volume,
         likedTracks,
+        currentPlaylist,
+        currentTrackIndex,
         playTrack,
         pauseTrack,
         togglePlayPause,
@@ -165,6 +216,10 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
         seekTo,
         toggleLike,
         isTrackLiked,
+        playNext,
+        playPrevious,
+        hasNext,
+        hasPrevious,
       }}
     >
       {children}
